@@ -3,23 +3,33 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useRef } from "react";
-import type { ChangeEvent } from "react";
+import { useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import { PostView } from "~/components/postview";
 
 import { api } from "~/utils/api";
 
-type postProps = { profileImageUrl: string };
-const PostCreator = (props: postProps) => {
-  const ref = useRef<HTMLTextAreaElement>(null);
+const PostCreator = (props: { profileImageUrl: string }) => {
+  const [input, setInput] = useState("");
 
-  // Handles the textarea resize. The subtracted number on `e.target.scrollHeight - 16` is the sum of top and bottom padding.
-  const handleInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    if (ref.current) {
-      ref.current.style.height = "auto";
-      ref.current.style.height = `${e.target.scrollHeight - 16}px`;
-    }
-  };
+  const { user } = useUser();
+  const id = user?.id ?? "";
 
+  const ctx = api.useContext();
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAllInfinite.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        console.log(errorMessage);
+      } else {
+        console.log("Failed to post! Please try again later.");
+      }
+    },
+  });
   return (
     <>
       <div className="flex gap-3  p-4">
@@ -28,18 +38,30 @@ const PostCreator = (props: postProps) => {
           alt={"profile Image"}
           width={56}
           height={56}
-          className="h-14 w-14 rounded-full"
+          className="h-12 w-12 rounded-full"
         />
         <div className="w-full">
-          <textarea
-            ref={ref}
-            onInput={handleInput}
+          <TextareaAutosize
+            className="my-2 w-full resize-none overflow-hidden bg-transparent text-xl placeholder-gray-400 outline-none"
             placeholder="What's happening?"
-            className="placeholder-gray-40 w-full resize-none overflow-hidden bg-transparent p-1 text-xl outline-none "
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (input !== "") {
+                  mutate({ content: input });
+                }
+              }
+            }}
           />
-          <div className="mb-2  h-1 border-b border-zinc-700" />
+          {/* <div className="mb-2  h-1 border-b border-zinc-700" /> */}
           <div className="flex justify-end">
-            <button className="h-10 w-20 rounded-full bg-sky-500 hover:bg-sky-600">
+            <button
+              className="h-10 w-20 rounded-full bg-sky-500 hover:bg-sky-600"
+              onClick={() => mutate({ content: input })}
+              disabled={isPosting}
+            >
               <span className="text-base font-bold">Tweet</span>
             </button>
           </div>
@@ -49,9 +71,22 @@ const PostCreator = (props: postProps) => {
   );
 };
 
-const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
+const Feed = () => {
+  const { data, isLoading } = api.posts.getAllInfinite.useQuery({ limit: 100 });
 
+  if (isLoading) return <div>loading</div>;
+
+  return (
+    <div className="flex grow flex-col">
+      {data &&
+        data.map((fullPost) => (
+          <PostView {...fullPost} key={fullPost.post.id} />
+        ))}
+    </div>
+  );
+};
+
+const Home: NextPage = () => {
   const user = useUser();
 
   return (
@@ -71,8 +106,9 @@ const Home: NextPage = () => {
             {!!user.isSignedIn && (
               <PostCreator profileImageUrl={user.user?.profileImageUrl} />
             )}
-            {!!user.isSignedIn && <SignOutButton />}
           </div>
+          <Feed />
+          {!!user.isSignedIn && <SignOutButton />}
         </div>
       </main>
     </>
