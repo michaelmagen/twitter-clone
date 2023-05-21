@@ -13,8 +13,8 @@ dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
   relativeTime: {
     past: "%s",
-    s: "1s",
-    m: "1s",
+    s: "%ds",
+    m: "1m",
     mm: "%dm",
     h: "1h",
     hh: "%dh",

@@ -5,15 +5,13 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+import { LoadingSpinner, LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postview";
 
 import { api } from "~/utils/api";
 
 const PostCreator = (props: { profileImageUrl: string }) => {
   const [input, setInput] = useState("");
-
-  const { user } = useUser();
-  const id = user?.id ?? "";
 
   const ctx = api.useContext();
   const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
@@ -45,6 +43,7 @@ const PostCreator = (props: { profileImageUrl: string }) => {
             className="my-2 w-full resize-none overflow-hidden bg-transparent text-xl placeholder-gray-400 outline-none"
             placeholder="What's happening?"
             value={input}
+            disabled={isPosting}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -55,15 +54,19 @@ const PostCreator = (props: { profileImageUrl: string }) => {
               }
             }}
           />
-          {/* <div className="mb-2  h-1 border-b border-zinc-700" /> */}
           <div className="flex justify-end">
-            <button
-              className="h-10 w-20 rounded-full bg-sky-500 hover:bg-sky-600"
-              onClick={() => mutate({ content: input })}
-              disabled={isPosting}
-            >
-              <span className="text-base font-bold">Tweet</span>
-            </button>
+            <div className="flex h-10 w-20 items-center justify-center">
+              {isPosting && <LoadingSpinner size={28} />}
+              {!isPosting && (
+                <button
+                  className="h-full w-full rounded-full bg-sky-500 enabled:hover:bg-sky-600 disabled:opacity-50"
+                  onClick={() => mutate({ content: input })}
+                  disabled={input === ""}
+                >
+                  <span className="text-base font-bold">Tweet</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -74,7 +77,12 @@ const PostCreator = (props: { profileImageUrl: string }) => {
 const Feed = () => {
   const { data, isLoading } = api.posts.getAllInfinite.useQuery({ limit: 100 });
 
-  if (isLoading) return <div>loading</div>;
+  if (isLoading)
+    return (
+      <div className="flex grow">
+        <LoadingPage />
+      </div>
+    );
 
   return (
     <div className="flex grow flex-col">
@@ -87,7 +95,10 @@ const Feed = () => {
 };
 
 const Home: NextPage = () => {
-  const user = useUser();
+  const { isSignedIn, isLoaded: userLoaded, user } = useUser();
+
+  // Return empty div if user isn't loaded
+  if (!userLoaded) return <div />;
 
   return (
     <>
@@ -102,13 +113,13 @@ const Home: NextPage = () => {
             Home
           </span>
           <div className="border-b border-zinc-700">
-            {!user.isSignedIn && <SignInButton />}
-            {!!user.isSignedIn && (
-              <PostCreator profileImageUrl={user.user?.profileImageUrl} />
+            {!isSignedIn && <SignInButton />}
+            {!!isSignedIn && (
+              <PostCreator profileImageUrl={user?.profileImageUrl} />
             )}
           </div>
           <Feed />
-          {!!user.isSignedIn && <SignOutButton />}
+          {!!isSignedIn && <SignOutButton />}
         </div>
       </main>
     </>
