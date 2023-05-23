@@ -7,6 +7,7 @@ import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { LoadingSpinner, LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postview";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 import { api } from "~/utils/api";
 
@@ -77,6 +78,9 @@ const PostCreator = (props: { profileImageUrl: string }) => {
 const Feed = () => {
   const { data, isLoading } = api.posts.getAllInfinite.useQuery({ limit: 100 });
 
+  // ref for formkit autoaAnimation
+  const [animationRef] = useAutoAnimate();
+
   if (isLoading)
     return (
       <div className="flex grow">
@@ -85,7 +89,7 @@ const Feed = () => {
     );
 
   return (
-    <div className="flex grow flex-col">
+    <div className="flex grow flex-col overflow-y-scroll" ref={animationRef}>
       {data &&
         data.map((fullPost) => (
           <PostView {...fullPost} key={fullPost.post.id} />
