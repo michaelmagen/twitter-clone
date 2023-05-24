@@ -28,8 +28,8 @@ function dateToFormatedString(datePrimitive: Date) {
   const date = dayjs(datePrimitive);
 
   // if post created less than a day ago, use relative time
-  const isLessThan24HoursAgo = date.isAfter(dayjs().subtract(24, "hour"));
-  if (isLessThan24HoursAgo) {
+  const isLessThan23HoursAgo = date.isAfter(dayjs().subtract(23, "hour"));
+  if (isLessThan23HoursAgo) {
     return date.fromNow();
   }
 
@@ -41,7 +41,8 @@ function dateToFormatedString(datePrimitive: Date) {
   return date.format(formatString);
 }
 
-type PostWithUser = RouterOutputs["posts"]["getAllInfinite"][number];
+type PostWithUser =
+  RouterOutputs["posts"]["getAllInfinite"]["postsWithUser"][number];
 export const PostView = (props: PostWithUser) => {
   const { post, author } = props;
 

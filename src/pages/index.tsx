@@ -3,11 +3,12 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { LoadingSpinner, LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postview";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useInView } from "react-intersection-observer";
 
 import { api } from "~/utils/api";
 
@@ -76,7 +77,23 @@ const PostCreator = (props: { profileImageUrl: string }) => {
 };
 
 const Feed = () => {
-  const { data, isLoading } = api.posts.getAllInfinite.useQuery({ limit: 100 });
+  const { ref, inView } = useInView();
+
+  const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
+    api.posts.getAllInfinite.useInfiniteQuery(
+      {
+        limit: 15,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
+
+  useEffect(() => {
+    if (inView) {
+      void fetchNextPage();
+    }
+  }, [inView, fetchNextPage]);
 
   // ref for formkit autoaAnimation
   const [animationRef] = useAutoAnimate();
@@ -91,9 +108,20 @@ const Feed = () => {
   return (
     <div className="flex grow flex-col overflow-y-scroll" ref={animationRef}>
       {data &&
-        data.map((fullPost) => (
-          <PostView {...fullPost} key={fullPost.post.id} />
-        ))}
+        data.pages.map((page) =>
+          page.postsWithUser.map((postWithUser) => (
+            <PostView {...postWithUser} key={postWithUser.post.id} />
+          ))
+        )}
+      <div ref={ref} className="flex h-5 justify-center p-2">
+        {isFetchingNextPage ? (
+          <LoadingSpinner size={28} />
+        ) : hasNextPage ? (
+          "load newer"
+        ) : (
+          "Nothing to load"
+        )}
+      </div>
     </div>
   );
 };
