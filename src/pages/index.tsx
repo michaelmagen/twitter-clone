@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { LoadingSpinner, LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postview";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useInView } from "react-intersection-observer";
 
 import { api } from "~/utils/api";
@@ -95,9 +94,6 @@ const Feed = () => {
     }
   }, [inView, fetchNextPage]);
 
-  // ref for formkit autoaAnimation
-  const [animationRef] = useAutoAnimate();
-
   if (isLoading)
     return (
       <div className="flex grow">
@@ -106,7 +102,7 @@ const Feed = () => {
     );
 
   return (
-    <div className="flex grow flex-col overflow-y-scroll" ref={animationRef}>
+    <div className="flex grow flex-col overflow-y-scroll">
       {data &&
         data.pages.map((page) =>
           page.postsWithUser.map((postWithUser) => (
