@@ -1,6 +1,5 @@
 import type { PropsWithChildren, FC } from "react";
-import { SignOutButton } from "@clerk/clerk-react";
-import { useUser } from "@clerk/nextjs";
+import { Sidebar } from "./sidebar";
 
 type HeadingProps = {
   pageName: string;
@@ -8,7 +7,7 @@ type HeadingProps = {
 
 const Heading: FC<HeadingProps> = ({ pageName }) => {
   return (
-    <div className="sticky top-0 z-50 h-auto w-full self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md">
+    <div className="sticky top-0 z-10 h-auto w-full self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
       {pageName}
     </div>
   );
@@ -20,18 +19,14 @@ interface PageLayoutProps extends PropsWithChildren {
 }
 
 export const PageLayout: FC<PageLayoutProps> = ({ pageName, children }) => {
-  const { isSignedIn } = useUser();
-  console.log(pageName);
   return (
-    <div className="flex min-h-screen justify-evenly">
-      <div className="sticky top-0 h-auto self-start">
-        {isSignedIn ? <SignOutButton /> : "no sign in"}
-      </div>
+    <div className="flex min-h-screen justify-center">
+      <Sidebar />
       <main className="flex w-full flex-col items-center border-x border-zinc-700 md:max-w-2xl">
         <Heading pageName={pageName} />
         <div className="w-full">{children}</div>
       </main>
-      <div className="sticky top-0 h-auto self-start">Search</div>
+      <div className="sticky top-0 h-auto w-64 self-start">Search</div>
     </div>
   );
 };
