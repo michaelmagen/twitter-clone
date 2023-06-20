@@ -1,78 +1,13 @@
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
-import { useState, useEffect } from "react";
-import TextareaAutosize from "react-textarea-autosize";
+import { useEffect } from "react";
 import { LoadingSpinner, LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postview";
 import { useInView } from "react-intersection-observer";
 import { api } from "~/utils/api";
 import { PageLayout } from "~/components/PageLayout";
-
-const PostCreator = (props: { profileImageUrl: string }) => {
-  const [input, setInput] = useState("");
-
-  const ctx = api.useContext();
-  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
-    onSuccess: () => {
-      setInput("");
-      void ctx.posts.getAllInfinite.invalidate();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content;
-      if (errorMessage && errorMessage[0]) {
-        console.log(errorMessage);
-      } else {
-        console.log("Failed to post! Please try again later.");
-      }
-    },
-  });
-  return (
-    <>
-      <div className="flex gap-3  p-4">
-        <Image
-          src={props.profileImageUrl}
-          alt={"profile Image"}
-          width={56}
-          height={56}
-          className="h-12 w-12 rounded-full"
-        />
-        <div className="w-full">
-          <TextareaAutosize
-            className="my-2 w-full resize-none overflow-hidden bg-transparent text-xl placeholder-gray-400 outline-none"
-            placeholder="What's happening?"
-            value={input}
-            disabled={isPosting}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                if (input !== "") {
-                  mutate({ content: input });
-                }
-              }
-            }}
-          />
-          <div className="flex justify-end">
-            <div className="flex h-10 w-20 items-center justify-center">
-              {isPosting && <LoadingSpinner size={28} />}
-              {!isPosting && (
-                <button
-                  className="h-full w-full rounded-full bg-sky-500 enabled:hover:bg-sky-600 disabled:opacity-50"
-                  onClick={() => mutate({ content: input })}
-                  disabled={input === ""}
-                >
-                  <span className="text-base font-bold">Tweet</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+import { PostCreator } from "~/components/postCreator";
 
 const Feed = () => {
   const { ref, inView } = useInView();
