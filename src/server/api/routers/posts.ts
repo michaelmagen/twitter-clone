@@ -10,12 +10,9 @@ import { privateProcedure } from "../trpc";
 const filterUserForClient = (user: User) => {
   return {
     id: user.id,
-    username: user.username,
+    username: user.unsafeMetadata.username as string,
+    displayName: user.unsafeMetadata.displayName as string,
     profileImageUrl: user.profileImageUrl,
-    externalUsername:
-      user.externalAccounts.find(
-        (externalAccount) => externalAccount.provider === "oauth_github"
-      )?.username || null,
   };
 };
 
@@ -38,15 +35,11 @@ const addUserDataToPosts = async (posts: Post[]) => {
         message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
       });
     }
-    if (!author.username) {
-      // user the ExternalUsername
-      if (!author.externalUsername) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Author has no GitHub Account: ${author.id}`,
-        });
-      }
-      author.username = author.externalUsername;
+    if (!author.username || !author.displayName) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Author is missing displayName or username: ${author.id}`,
+      });
     }
     return {
       post,

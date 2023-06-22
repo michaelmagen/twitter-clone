@@ -28,12 +28,9 @@ const SidebarButton = ({ icon, label, onClick }: SidebarButtonProps) => {
         <span> {label} </span>
       </button>
       <HoverTooltip content={label} className={clsx("lg:hidden")}>
-        <button
-          className="rounded-full p-2 hover:bg-zinc-800"
-          onClick={onClick}
-        >
+        <div className="rounded-full p-2 hover:bg-zinc-800" onClick={onClick}>
           {icon}
-        </button>
+        </div>
       </HoverTooltip>
     </>
   );
@@ -41,6 +38,9 @@ const SidebarButton = ({ icon, label, onClick }: SidebarButtonProps) => {
 
 const UserButtonWithPopover = () => {
   const { isSignedIn, user } = useUser();
+
+  const displayName = user?.unsafeMetadata.displayName as string;
+  const username = user?.unsafeMetadata.username as string;
 
   if (!isSignedIn || !user?.profileImageUrl) {
     return <></>;
@@ -59,8 +59,8 @@ const UserButtonWithPopover = () => {
           />
         </div>
         <div className=" hidden flex-grow flex-col pl-4 text-left text-base lg:flex">
-          <span className="font-bold"> {user.username} </span>
-          <span className="font-thin text-gray-400"> @{user.username}</span>
+          <span className="font-bold"> {displayName} </span>
+          <span className="font-thin text-gray-400"> @{username}</span>
         </div>
         <div className="hidden h-full items-center justify-center lg:flex">
           <ThreeDotsIcon />
@@ -97,7 +97,7 @@ export const Sidebar = () => {
   const { user } = useUser();
   const profileImage: string = user?.profileImageUrl ?? "";
   return (
-    <div className="sticky top-0 h-auto self-start">
+    <header className="sticky top-0 h-auto self-start">
       <div className="flex h-screen w-24 flex-shrink-0 flex-col justify-between px-2 lg:w-full lg:flex-shrink">
         <div className="flex flex-col items-center justify-center gap-3 px-4 pb-2 pt-16 lg:items-start">
           <Link href="/">
@@ -112,6 +112,6 @@ export const Sidebar = () => {
           <UserButtonWithPopover />
         </div>
       </div>
-    </div>
+    </header>
   );
 };

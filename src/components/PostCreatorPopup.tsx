@@ -7,7 +7,7 @@ import { PostCreator } from "./postCreator";
 interface PostCreatorPopupProps {
   profileImageUrl: string;
 }
-
+// todo: fix width for content, set w-full then a min and a max
 export const PostCreatorPopup = ({
   profileImageUrl,
 }: PostCreatorPopupProps) => {

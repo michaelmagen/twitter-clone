@@ -71,7 +71,9 @@ const Home: NextPage = () => {
       </Head>
       <PageLayout pageName="Home">
         <div className="border-b border-zinc-700">
-          {!isSignedIn && <SignInButton />}
+          {!isSignedIn && (
+            <SignInButton afterSignUpUrl="/register" afterSignInUrl="/" />
+          )}
           {!!isSignedIn && (
             <PostCreator profileImageUrl={user?.profileImageUrl} />
           )}

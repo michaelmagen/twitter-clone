@@ -2,7 +2,7 @@ import { type NextPage } from "next";
 import { UserProfile, SignedIn } from "@clerk/clerk-react";
 import Link from "next/link";
 
-const Home: NextPage = () => {
+const ProfileSettings: NextPage = () => {
   return (
     <SignedIn>
       <Link href="/" className="fixed inset-x-16 inset-y-4 z-50 h-12 w-12">
@@ -24,10 +24,13 @@ const Home: NextPage = () => {
       </Link>
       <UserProfile
         path="/profileSettings"
-        routing="path"
+        routing="hash"
         appearance={{
           elements: {
             rootBox: "h-screen w-screen flex items-center justify-center",
+            navbar: {
+              display: "none",
+            },
           },
         }}
       />
@@ -35,4 +38,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default ProfileSettings;
