@@ -14,10 +14,12 @@ export const HoverTooltip = ({
   return (
     <Tooltip.Provider>
       <Tooltip.Root>
-        <Tooltip.Trigger className={`${className}`}>{children}</Tooltip.Trigger>
+        <Tooltip.Trigger className={`${className}`} asChild>
+          {children}
+        </Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content>
-            <div className="z-10 animate-fadeIn rounded bg-slate-600 bg-opacity-90 p-0.5 text-sm">
+            <div className="z-10 animate-fadeIn rounded bg-slate-600 bg-opacity-90 p-0.5 text-sm lg:hidden">
               {content}
             </div>
           </Tooltip.Content>

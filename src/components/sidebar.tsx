@@ -28,9 +28,12 @@ const SidebarButton = ({ icon, label, onClick }: SidebarButtonProps) => {
         <span> {label} </span>
       </button>
       <HoverTooltip content={label} className={clsx("lg:hidden")}>
-        <div className="rounded-full p-2 hover:bg-zinc-800" onClick={onClick}>
+        <button
+          className="rounded-full p-2 hover:bg-zinc-800"
+          onClick={onClick}
+        >
           {icon}
-        </div>
+        </button>
       </HoverTooltip>
     </>
   );
@@ -43,29 +46,36 @@ const UserButtonWithPopover = () => {
   const username = user?.unsafeMetadata.username as string;
 
   if (!isSignedIn || !user?.profileImageUrl) {
-    return <></>;
+    return <div className="lg:w-72"></div>;
   }
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="my-3 flex h-16 w-16 items-center justify-center rounded-full hover:bg-zinc-800 lg:w-72 lg:p-3">
-        <div className="h-12 w-12 rounded-full">
-          <Image
-            src={user?.profileImageUrl}
-            alt={"profile Image"}
-            width={56}
-            height={56}
-            className="rounded-full"
-          />
-        </div>
-        <div className=" hidden flex-grow flex-col pl-4 text-left text-base lg:flex">
-          <span className="font-bold"> {displayName} </span>
-          <span className="font-thin text-gray-400"> @{username}</span>
-        </div>
-        <div className="hidden h-full items-center justify-center lg:flex">
-          <ThreeDotsIcon />
-        </div>
-      </Popover.Trigger>
+      <HoverTooltip content="Account">
+        <Popover.Trigger
+          className="my-3 flex h-16 w-16 items-center justify-center rounded-full hover:bg-zinc-800 lg:w-72 lg:p-3"
+          asChild
+        >
+          <button>
+            <div className="h-12 w-12 rounded-full">
+              <Image
+                src={user?.profileImageUrl}
+                alt={"profile Image"}
+                width={56}
+                height={56}
+                className="rounded-full"
+              />
+            </div>
+            <div className=" hidden flex-grow flex-col pl-4 text-left text-base lg:flex">
+              <span className="font-bold"> {displayName} </span>
+              <span className="font-thin text-gray-400"> @{username}</span>
+            </div>
+            <div className="hidden h-full items-center justify-center lg:flex">
+              <ThreeDotsIcon />
+            </div>
+          </button>
+        </Popover.Trigger>
+      </HoverTooltip>
       <Popover.Portal>
         <Popover.Content
           className="popover-shadow w-72 rounded-xl bg-black py-3 will-change-[transform,opacity] data-[state=closed]:animate-fadeOut data-[state=open]:animate-slideUpAndFade"
@@ -98,7 +108,7 @@ export const Sidebar = () => {
   const profileImage: string = user?.profileImageUrl ?? "";
   return (
     <header className="sticky top-0 h-auto self-start">
-      <div className="flex h-screen w-24 flex-shrink-0 flex-col justify-between px-2 lg:w-full lg:flex-shrink">
+      <div className="flex h-screen w-20 flex-shrink-0 flex-col justify-between px-2 lg:w-full lg:flex-shrink">
         <div className="flex flex-col items-center justify-center gap-3 px-4 pb-2 pt-16 lg:items-start">
           <Link href="/">
             <SidebarButton icon={<HomeIcon />} label="Home" />

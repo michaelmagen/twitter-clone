@@ -3,6 +3,7 @@ import { XIcon } from "./icons/XIcon";
 import { useState } from "react";
 import { TweetIcon } from "./icons/CreateTweetIcon";
 import { PostCreator } from "./postCreator";
+import { HoverTooltip } from "./tooltip";
 
 interface PostCreatorPopupProps {
   profileImageUrl: string;
@@ -14,15 +15,20 @@ export const PostCreatorPopup = ({
   const [open, setOpen] = useState(false);
   return (
     <Dialog.Root open={open}>
-      <Dialog.Trigger
-        className="h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3"
-        onClick={() => setOpen(true)}
-      >
-        <span className="hidden text-base font-bold lg:block">Tweet</span>
-        <div className="block lg:hidden">
-          <TweetIcon />
-        </div>
-      </Dialog.Trigger>
+      <HoverTooltip content="Tweet">
+        <Dialog.Trigger
+          className="h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3"
+          onClick={() => setOpen(true)}
+          asChild
+        >
+          <button>
+            <span className="hidden text-base font-bold lg:block">Tweet</span>
+            <div className="block lg:hidden">
+              <TweetIcon />
+            </div>
+          </button>
+        </Dialog.Trigger>
+      </HoverTooltip>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-slate-500 opacity-60 data-[state=open]:animate-overlayShow" />
         <Dialog.Content
