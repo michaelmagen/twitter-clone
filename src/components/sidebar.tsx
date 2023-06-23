@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/nextjs";
+import { useUser, SignInButton } from "@clerk/nextjs";
 import { SignOutButton } from "@clerk/clerk-react";
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import { HoverTooltip } from "./tooltip";
 import clsx from "clsx";
 import type { ReactElement } from "react";
 import { PostCreatorPopup } from "./PostCreatorPopup";
+import { PersonPlusIcon } from "./icons/PersonPlusIcon";
 
 interface SidebarButtonProps {
   icon: ReactElement;
@@ -103,8 +104,29 @@ const UserButtonWithPopover = () => {
   );
 };
 
+const SidebarSignInButton = () => {
+  return (
+    <HoverTooltip
+      content="Sign In"
+      className={clsx(
+        "h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3"
+      )}
+    >
+      <SignInButton afterSignUpUrl="/register" afterSignInUrl="/">
+        {/* <button className="h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3"> */}
+        <button>
+          <span className="hidden text-base font-bold lg:block">Sign In</span>
+          <div className="lg:hidden">
+            <PersonPlusIcon />
+          </div>
+        </button>
+      </SignInButton>
+    </HoverTooltip>
+  );
+};
+
 export const Sidebar = () => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const profileImage: string = user?.profileImageUrl ?? "";
   return (
     <header className="sticky top-0 h-auto self-start">
@@ -116,7 +138,8 @@ export const Sidebar = () => {
           <Link href="https://github.com/michaelmagen/twitter-clone">
             <SidebarButton icon={<GithubIcon />} label="Source Code" />
           </Link>
-          <PostCreatorPopup profileImageUrl={profileImage} />
+          {isSignedIn && <PostCreatorPopup profileImageUrl={profileImage} />}
+          {!isSignedIn && <SidebarSignInButton />}
         </div>
         <div className="flex justify-center">
           <UserButtonWithPopover />
