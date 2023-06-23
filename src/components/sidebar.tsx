@@ -106,21 +106,17 @@ const UserButtonWithPopover = () => {
 
 const SidebarSignInButton = () => {
   return (
-    <HoverTooltip
-      content="Sign In"
-      className={clsx(
-        "h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3"
-      )}
-    >
-      <SignInButton afterSignUpUrl="/register" afterSignInUrl="/">
-        {/* <button className="h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3"> */}
-        <button>
-          <span className="hidden text-base font-bold lg:block">Sign In</span>
-          <div className="lg:hidden">
-            <PersonPlusIcon />
-          </div>
-        </button>
-      </SignInButton>
+    <HoverTooltip content="Sign In">
+      <div className="lg:w-full">
+        <SignInButton afterSignUpUrl="/register" afterSignInUrl="/">
+          <button className="h-full w-12 rounded-full bg-sky-500 p-2 hover:bg-sky-600 lg:w-full lg:py-3">
+            <span className="hidden text-base font-bold lg:block">Sign In</span>
+            <div className="lg:hidden">
+              <PersonPlusIcon />
+            </div>
+          </button>
+        </SignInButton>
+      </div>
     </HoverTooltip>
   );
 };
