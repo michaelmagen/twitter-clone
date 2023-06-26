@@ -125,8 +125,8 @@ export const Sidebar = () => {
   const { user, isSignedIn } = useUser();
   const profileImage: string = user?.profileImageUrl ?? "";
   return (
-    <header className="sticky top-0 h-auto self-start">
-      <div className="flex h-screen w-20 flex-shrink-0 flex-col justify-between px-2 lg:w-full lg:flex-shrink">
+    <header className="sticky top-0 hidden h-auto self-start sm:block">
+      <div className="flex h-screen w-20 flex-shrink-0 flex-col justify-between px-2 lg:w-[304px] lg:flex-shrink">
         <div className="flex flex-col items-center justify-center gap-3 px-4 pb-2 pt-16 lg:items-start">
           <Link href="/">
             <SidebarButton icon={<HomeIcon />} label="Home" />
