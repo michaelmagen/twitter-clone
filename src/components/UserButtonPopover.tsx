@@ -21,7 +21,7 @@ export const UserButtonPopover = ({ responsive = true }) => {
       <HoverTooltip content="Account">
         <Popover.Trigger
           className={`my-3 flex h-16 items-center justify-center rounded-full hover:bg-zinc-800 ${
-            responsive ? "w-16 lg:w-72 lg:p-3" : "w-72 p-3"
+            responsive ? "w-16 lg:w-72 lg:p-3" : "w-72 p-1"
           }`}
           asChild
         >

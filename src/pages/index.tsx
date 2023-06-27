@@ -73,11 +73,7 @@ const Home: NextPage = () => {
         <div className="border-b border-zinc-700">
           {!isSignedIn && (
             <div className="flex w-full items-center justify-center p-4 ">
-              <SignInButton
-                afterSignUpUrl="/register"
-                afterSignInUrl="/"
-                mode="modal"
-              >
+              <SignInButton afterSignUpUrl="/register" afterSignInUrl="/">
                 <button className="w-1/2 rounded-full bg-sky-500 p-2 text-lg font-bold hover:bg-sky-600">
                   Sign In
                 </button>

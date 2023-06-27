@@ -41,11 +41,7 @@ export const SidebarSignInButton = ({ responsive = true }) => {
   return (
     <HoverTooltip content="Sign In">
       <div className={`${responsive ? "lg:w-full" : "w-full"}`}>
-        <SignInButton
-          afterSignUpUrl="/register"
-          afterSignInUrl="/"
-          mode="modal"
-        >
+        <SignInButton afterSignUpUrl="/register" afterSignInUrl="/">
           <button
             className={`h-full rounded-full bg-sky-500 p-2 hover:bg-sky-600  ${
               responsive ? "w-12 p-2 lg:w-full lg:py-3" : "w-full py-3"
