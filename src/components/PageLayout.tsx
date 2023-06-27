@@ -1,5 +1,6 @@
 import type { PropsWithChildren, FC } from "react";
 import { Sidebar } from "./sidebar";
+import { MobileDrawerNav } from "./MobileDrawerNav";
 
 type HeadingProps = {
   pageName: string;
@@ -7,8 +8,9 @@ type HeadingProps = {
 
 const Heading: FC<HeadingProps> = ({ pageName }) => {
   return (
-    <div className="sticky top-0 h-auto w-full self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
+    <div className="sticky top-0 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
       {pageName}
+      <MobileDrawerNav />
     </div>
   );
 };
@@ -20,7 +22,7 @@ interface PageLayoutProps extends PropsWithChildren {
 
 export const PageLayout: FC<PageLayoutProps> = ({ pageName, children }) => {
   return (
-    <div className="flex min-h-screen justify-center">
+    <div className="min-h-screen justify-center sm:flex">
       <Sidebar />
       <main className="flex w-full flex-col items-center border-zinc-700 sm:border-x md:max-w-2xl md:flex-shrink-0">
         <Heading pageName={pageName} />
