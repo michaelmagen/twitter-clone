@@ -50,27 +50,22 @@ export const PostView = (props: PostWithUser) => {
     <div key={post.id} className="flex gap-3 border-b border-zinc-700 p-4">
       <Image
         src={author.profileImageUrl}
-        className="h-12 w-12 rounded-full"
+        className="h-11 w-11 rounded-full"
         alt={`@${author.username}'s profile picture`}
         width={56}
         height={56}
       />
-      <div className="flex flex-col">
-        <div className="flex gap-1 text-base ">
-          <Link href={`/@${author.username}`}>
-            <span className="font-bold hover:underline">{`${author.displayName}`}</span>
-            <span className="font-thin text-gray-400">{`  @${author.username}`}</span>
-          </Link>
+      <div className="flex flex-col overflow-hidden">
+        <div className="flex gap-1 text-sm sm:text-base">
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap font-bold  hover:underline">{`${author.displayName}`}</span>
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap font-thin text-gray-400">{`  @${author.username}`}</span>
           <Link href={`/post/${post.id}`}>
-            {/* <span className="font-thin text-gray-400">{` · ${dayjs(
-              post.createdAt
-            ).fromNow()}`}</span> */}
-            <span className="font-thin text-gray-400">
+            <span className="overflow-hidden whitespace-nowrap font-thin text-gray-400">
               {` · ${dateToFormatedString(post.createdAt)}`}
             </span>
           </Link>
         </div>
-        <span className="text-base">{post.content}</span>
+        <span className="text-sm sm:text-base">{post.content}</span>
       </div>
     </div>
   );
