@@ -2,7 +2,7 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useEffect } from "react";
-import { LoadingSpinner, LoadingPage } from "~/components/loading";
+import { LoadingSpinner } from "~/components/loading";
 import { PostView } from "~/components/postview";
 import { useInView } from "react-intersection-observer";
 import { api } from "~/utils/api";
@@ -30,8 +30,8 @@ const Feed = () => {
 
   if (isLoading)
     return (
-      <div className="flex grow">
-        <LoadingPage />
+      <div className="flex justify-center pt-10">
+        <LoadingSpinner size={40} />
       </div>
     );
 
