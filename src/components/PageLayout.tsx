@@ -8,7 +8,7 @@ type HeadingProps = {
 
 const Heading: FC<HeadingProps> = ({ pageName }) => {
   return (
-    <div className="sticky top-0 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
+    <div className="sticky top-0 z-10 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
       {pageName}
       <MobileDrawerNav />
     </div>
