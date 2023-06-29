@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import TextareaAutosize from "react-textarea-autosize";
 import { LoadingSpinner } from "~/components/loading";
 import { api } from "~/utils/api";
@@ -27,9 +28,9 @@ export const PostCreator = ({
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content;
       if (errorMessage && errorMessage[0]) {
-        console.log(errorMessage);
+        toast.error(errorMessage[0]);
       } else {
-        console.log("Failed to post! Please try again later.");
+        toast.error("Failed to post! Please try again later.");
       }
     },
   });

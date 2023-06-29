@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "~/components/loading";
+import toast from "react-hot-toast";
 
 const inputSchema = z.object({
   displayName: z
@@ -33,7 +34,6 @@ const Register: NextPage = () => {
   } = useForm<Inputs>({ resolver: zodResolver(inputSchema) });
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
-    console.log(data);
     if (!user) {
       return;
     }
@@ -46,8 +46,7 @@ const Register: NextPage = () => {
         },
       });
     } catch (e) {
-      // todo: add toast to show error
-      console.log(e);
+      toast.error("Failed to register");
       return;
     }
 

@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import type { PropsWithChildren } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@clerk/nextjs";
+import { Toaster } from "react-hot-toast";
 
 const RedirectIfNotRegistered = ({ children }: PropsWithChildren) => {
   const router = useRouter();
@@ -41,6 +42,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         baseTheme: dark,
       }}
     >
+      <Toaster position="bottom-center" />
       <RedirectIfNotRegistered>
         <Component {...pageProps} />
       </RedirectIfNotRegistered>
