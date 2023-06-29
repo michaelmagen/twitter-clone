@@ -57,15 +57,15 @@ export const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col overflow-hidden">
         <div className="flex gap-1 text-sm sm:text-base">
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap font-bold  hover:underline">{`${author.displayName}`}</span>
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap font-thin text-gray-400">{`  @${author.username}`}</span>
+          <span className="truncate font-bold  hover:underline">{`${author.displayName}`}</span>
+          <span className="truncate font-thin text-gray-400">{`  @${author.username}`}</span>
           <Link href={`/post/${post.id}`}>
             <span className="overflow-hidden whitespace-nowrap font-thin text-gray-400">
               {` · ${dateToFormatedString(post.createdAt)}`}
             </span>
           </Link>
         </div>
-        <span className="text-sm sm:text-base">{post.content}</span>
+        <span className="break-words text-sm sm:text-base">{post.content}</span>
       </div>
     </div>
   );

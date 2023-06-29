@@ -50,6 +50,7 @@ export const PostCreator = ({
             value={input}
             disabled={isPosting}
             onChange={(e) => setInput(e.target.value)}
+            maxLength={255}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -60,6 +61,11 @@ export const PostCreator = ({
             }}
           />
           <div className="flex justify-end">
+            {!isPosting && input.length > 0 && (
+              <span className="mr-2 flex items-center text-sm text-sky-500 ">
+                {input.length}/255
+              </span>
+            )}
             <div className="flex h-10 w-20 items-center justify-center">
               {isPosting && <LoadingSpinner size={28} />}
               {!isPosting && (
