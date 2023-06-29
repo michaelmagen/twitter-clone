@@ -65,7 +65,9 @@ export const PostView = (props: PostWithUser) => {
             </span>
           </Link>
         </div>
-        <span className="break-words text-sm sm:text-base">{post.content}</span>
+        <span className="hyphens-auto break-words text-sm sm:text-base">
+          {post.content}
+        </span>
       </div>
     </div>
   );
