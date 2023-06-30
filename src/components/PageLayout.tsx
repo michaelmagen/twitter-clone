@@ -22,9 +22,9 @@ interface PageLayoutProps extends PropsWithChildren {
 
 export const PageLayout: FC<PageLayoutProps> = ({ pageName, children }) => {
   return (
-    <div className="min-h-screen justify-center sm:flex">
+    <div className="flex min-h-screen justify-center">
       <Sidebar />
-      <main className="flex w-full flex-col items-center border-zinc-700 sm:border-x md:max-w-2xl md:flex-shrink-0">
+      <main className="flex w-full min-w-0 flex-col items-center border-zinc-700 sm:border-x md:max-w-2xl md:flex-shrink-0">
         <Heading pageName={pageName} />
         <div className="w-full">{children}</div>
       </main>
