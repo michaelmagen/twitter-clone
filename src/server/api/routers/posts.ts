@@ -52,13 +52,6 @@ const addUserDataToPosts = async (posts: Post[]) => {
 };
 
 export const postsRouter = createTRPCRouter({
-  getAll: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
   getAllInfinite: publicProcedure
     .input(
       z.object({
@@ -82,8 +75,39 @@ export const postsRouter = createTRPCRouter({
       }
 
       const postsWithUser = await addUserDataToPosts(posts);
+
+      // add likes
+      const postsWithUserAndLikes = await Promise.all(
+        postsWithUser.map(async (post) => {
+          // count number of likes on post
+          const likeCount = await ctx.prisma.like.count({
+            where: {
+              postId: post.post.id,
+            },
+          });
+
+          const findUserLike = await ctx.prisma.like.findFirst({
+            where: {
+              postId: post.post.id,
+              userId: ctx.userId ?? "",
+            },
+          });
+          let isLikedByUser = false;
+          if (findUserLike) {
+            isLikedByUser = true;
+          }
+
+          return {
+            post: post.post,
+            author: post.author,
+            likeCount,
+            isLikedByUser,
+          };
+        })
+      );
+
       return {
-        postsWithUser,
+        postsWithUserAndLikes,
         nextCursor,
       };
     }),

@@ -39,7 +39,7 @@ const Feed = () => {
     <div className="flex grow flex-col">
       {data &&
         data.pages.map((page) =>
-          page.postsWithUser.map((postWithUser) => (
+          page.postsWithUserAndLikes.map((postWithUser) => (
             <PostView {...postWithUser} key={postWithUser.post.id} />
           ))
         )}

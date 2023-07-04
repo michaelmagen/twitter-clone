@@ -22,6 +22,7 @@ export const PostCreator = ({
       setInput("");
       void ctx.posts.getAllInfinite.invalidate();
       if (onSuccess) {
+        // run the success function passed in in props
         onSuccess();
       }
     },

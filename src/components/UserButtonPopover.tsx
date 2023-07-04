@@ -12,6 +12,11 @@ export const UserButtonPopover = ({ responsive = true }) => {
   const displayName = user?.unsafeMetadata.displayName as string;
   const username = user?.unsafeMetadata.username as string;
 
+  // reload the page when sign out so that likes etc. are reset
+  const reloadPageOnSignOut = () => {
+    window.location.reload();
+  };
+
   if (!isSignedIn || !user?.profileImageUrl) {
     return <div className="lg:w-72"></div>;
   }
@@ -70,7 +75,10 @@ export const UserButtonPopover = ({ responsive = true }) => {
               User Profile Settings
             </Link>
             <SignOutButton>
-              <button className="px-4 py-3 text-left text-base font-bold hover:bg-zinc-900">
+              <button
+                className="px-4 py-3 text-left text-base font-bold hover:bg-zinc-900"
+                onClick={reloadPageOnSignOut}
+              >
                 Sign Out
               </button>
             </SignOutButton>

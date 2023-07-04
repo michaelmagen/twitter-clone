@@ -16,6 +16,18 @@ model Post {
     createdAt DateTime @default(now())
     content   String   @db.VarChar(255)
     authorId  String
+    likes     Like[]
 
     @@index([authorId])
+}
+
+model Like {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    post      Post     @relation(fields: [postId], references: [id])
+    postId    String
+    userId    String
+
+    @@unique([postId, userId])
+    @@index([postId])
 }
