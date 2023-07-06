@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 import { HeartIcon } from "./icons/HeartIcon";
 import { toast } from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
+import { HoverTooltip } from "./HoverTooltip";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -146,13 +147,15 @@ export const PostView = (props: PostWithUserAndLikes) => {
         </div>
       </div>
       <div className="mb-1 flex w-full items-center justify-center gap-0.5">
-        <button
-          onClick={handleLikeButtonClick}
-          className="rounded-full p-2 hover:bg-pink-600 hover:bg-opacity-20"
-        >
-          {!isLiked && <HeartIcon />}
-          {isLiked && <HeartIcon filled />}
-        </button>
+        <HoverTooltip content="Like" allScreenSizes={true}>
+          <button
+            onClick={handleLikeButtonClick}
+            className="rounded-full p-2 hover:bg-pink-600 hover:bg-opacity-20"
+          >
+            {!isLiked && <HeartIcon />}
+            {isLiked && <HeartIcon filled />}
+          </button>
+        </HoverTooltip>
         {!isLiked && <span className="text-xs text-gray-400">{likeCount}</span>}
         {isLiked && <span className="text-xs text-pink-600">{likeCount}</span>}
       </div>

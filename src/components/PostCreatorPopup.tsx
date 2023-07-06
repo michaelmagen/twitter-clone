@@ -3,7 +3,7 @@ import { XIcon } from "./icons/XIcon";
 import { useState } from "react";
 import { TweetIcon } from "./icons/CreateTweetIcon";
 import { PostCreator } from "./postCreator";
-import { HoverTooltip } from "./tooltip";
+import { HoverTooltip } from "./HoverTooltip";
 
 interface PostCreatorPopupProps {
   profileImageUrl: string;

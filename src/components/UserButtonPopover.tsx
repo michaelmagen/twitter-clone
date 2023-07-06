@@ -4,7 +4,7 @@ import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import Image from "next/image";
 import { ThreeDotsIcon } from "./icons/ThreeDotsIcon";
-import { HoverTooltip } from "./tooltip";
+import { HoverTooltip } from "./HoverTooltip";
 
 export const UserButtonPopover = ({ responsive = true }) => {
   const { isSignedIn, user } = useUser();

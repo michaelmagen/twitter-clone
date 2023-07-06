@@ -2,7 +2,7 @@ import { useUser, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { HomeIcon } from "./icons/HomeIcon";
 import { GithubIcon } from "./icons/GithubIcon";
-import { HoverTooltip } from "./tooltip";
+import { HoverTooltip } from "./HoverTooltip";
 import clsx from "clsx";
 import { type ReactElement } from "react";
 import { PostCreatorPopup } from "./PostCreatorPopup";
