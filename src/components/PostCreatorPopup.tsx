@@ -47,7 +47,7 @@ export const PostCreatorPopup = ({
         >
           <PostCreator
             profileImageUrl={profileImageUrl}
-            onSuccess={() => setOpen(false)}
+            onSuccessfulPost={() => setOpen(false)}
           />
           <Dialog.Close asChild>
             <button

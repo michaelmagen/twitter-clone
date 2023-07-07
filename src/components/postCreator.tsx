@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import TextareaAutosize from "react-textarea-autosize";
 import { LoadingSpinner } from "~/components/loading";
@@ -7,37 +7,74 @@ import { api } from "~/utils/api";
 
 interface PostCreatorProps {
   profileImageUrl: string;
-  onSuccess?: () => void;
+  onSuccessfulPost?: () => void;
+  postIdToReplyTo?: string;
 }
 
 export const PostCreator = ({
   profileImageUrl,
-  onSuccess,
+  onSuccessfulPost,
+  postIdToReplyTo,
 }: PostCreatorProps) => {
   const [input, setInput] = useState("");
+  const [isPosting, setIsPosting] = useState(false);
 
   const ctx = api.useContext();
-  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
-    onSuccess: () => {
-      setInput("");
-      void ctx.posts.getAllInfinite.invalidate();
-      if (onSuccess) {
-        // run the success function passed in in props
-        onSuccess();
-      }
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content;
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0]);
-      } else {
-        toast.error("Failed to post! Please try again later.");
-      }
-    },
-  });
+
+  const { mutate: mutatePost, isLoading: isPostingPost } =
+    api.posts.create.useMutation({
+      onSuccess: () => {
+        setInput("");
+        void ctx.posts.getAllInfinite.invalidate();
+        if (onSuccessfulPost) {
+          // run the success function passed in in props
+          onSuccessfulPost();
+        }
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to post! Please try again later.");
+        }
+      },
+    });
+
+  const { mutate: mutateReply, isLoading: isPostingReply } =
+    api.replys.create.useMutation({
+      onSuccess: () => {
+        setInput("");
+        //void ctx.replys.getAllInfinite.invalidate();
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to reply! Please try again later.");
+        }
+      },
+    });
+
+  // if one of the mutations is posting, then set the posting state to true
+  useEffect(() => {
+    setIsPosting(isPostingPost || isPostingReply);
+  }, [isPostingPost, isPostingReply]);
+
+  const handlePostOrReplyCreation = () => {
+    // if there is a post id to reply to, then we are creating a reply not a post
+    // otherwise we are creating a post, so call the proper mutation
+    if (postIdToReplyTo) {
+      mutateReply({ postId: postIdToReplyTo, content: input });
+    } else {
+      mutatePost({ content: input });
+    }
+  };
+
   return (
     <>
-      <div className="flex gap-3  p-4">
+      <div className="flex gap-3 border-b border-zinc-700 p-4">
         <Image
           src={profileImageUrl}
           alt={"profile Image"}
@@ -48,7 +85,7 @@ export const PostCreator = ({
         <div className="w-full">
           <TextareaAutosize
             className="my-2 w-full resize-none overflow-hidden bg-transparent text-xl placeholder-gray-400 outline-none"
-            placeholder="What's happening?"
+            placeholder={postIdToReplyTo ? "Reply!" : "What's happening?"}
             value={input}
             disabled={isPosting}
             onChange={(e) => setInput(e.target.value)}
@@ -57,7 +94,7 @@ export const PostCreator = ({
               if (e.key === "Enter") {
                 e.preventDefault();
                 if (input !== "") {
-                  mutate({ content: input });
+                  handlePostOrReplyCreation();
                 }
               }
             }}
@@ -73,10 +110,12 @@ export const PostCreator = ({
               {!isPosting && (
                 <button
                   className="h-full w-full rounded-full bg-sky-500 enabled:hover:bg-sky-600 disabled:opacity-50"
-                  onClick={() => mutate({ content: input })}
+                  onClick={handlePostOrReplyCreation}
                   disabled={input === ""}
                 >
-                  <span className="text-base font-bold">Tweet</span>
+                  <span className="text-base font-bold">
+                    {postIdToReplyTo ? "Reply" : "Tweet"}
+                  </span>
                 </button>
               )}
             </div>

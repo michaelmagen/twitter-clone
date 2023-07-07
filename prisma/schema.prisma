@@ -17,6 +17,7 @@ model Post {
     content   String   @db.VarChar(255)
     authorId  String
     likes     Like[]
+    replys    Reply[]
 
     @@index([authorId])
 }
@@ -29,5 +30,16 @@ model Like {
     userId    String
 
     @@unique([postId, userId])
+    @@index([postId])
+}
+
+model Reply {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    content   String   @db.VarChar(255)
+    post      Post     @relation(fields: [postId], references: [id])
+    postId    String
+    userId    String
+
     @@index([postId])
 }

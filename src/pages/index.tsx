@@ -35,6 +35,7 @@ const Feed = () => {
       </div>
     );
 
+  // todo: rename postWIthUser in the map
   return (
     <div className="flex grow flex-col">
       {data &&

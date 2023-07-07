@@ -2,11 +2,11 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import type { Post } from "@prisma/client";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-
 import type { User } from "@clerk/nextjs/dist/api";
 import { privateProcedure } from "../trpc";
+import type { Like } from "@prisma/client";
+
 const filterUserForClient = (user: User) => {
   return {
     id: user.id,
@@ -16,39 +16,35 @@ const filterUserForClient = (user: User) => {
   };
 };
 
-const addUserDataToPosts = async (posts: Post[]) => {
-  const userId = posts.map((post) => post.authorId);
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: userId,
-      limit: 110,
-    })
-  ).map(filterUserForClient);
+const addUserDataToPost = async (post: Post) => {
+  const userId = post.authorId;
+  const user = await clerkClient.users.getUser(userId);
 
-  return posts.map((post) => {
-    const author = users.find((user) => user.id === post.authorId);
+  // check that the user exists
+  if (!user) {
+    console.error("AUTHOR NOT FOUND", post);
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
+    });
+  }
 
-    if (!author) {
-      console.error("AUTHOR NOT FOUND", post);
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
-      });
-    }
-    if (!author.username || !author.displayName) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: `Author is missing displayName or username: ${author.id}`,
-      });
-    }
-    return {
-      post,
-      author: {
-        ...author,
-        username: author.username ?? "(username not found)",
-      },
-    };
-  });
+  const filteredUser = filterUserForClient(user);
+
+  // check that the use has a username and display name
+  if (!filteredUser.username || !filteredUser.displayName) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Author is missing displayName or username: ${user.id}`,
+    });
+  }
+
+  return {
+    post,
+    author: {
+      ...filteredUser,
+    },
+  };
 };
 
 export const postsRouter = createTRPCRouter({
@@ -74,7 +70,9 @@ export const postsRouter = createTRPCRouter({
         nextCursor = nextItem?.id;
       }
 
-      const postsWithUser = await addUserDataToPosts(posts);
+      const postsWithUser = await Promise.all(
+        posts.map((post) => addUserDataToPost(post))
+      );
 
       // add likes
       const postsWithUserAndLikes = await Promise.all(
@@ -85,17 +83,15 @@ export const postsRouter = createTRPCRouter({
               postId: post.post.id,
             },
           });
-
+          // determimne if current user liked the post
           const findUserLike = await ctx.prisma.like.findFirst({
             where: {
               postId: post.post.id,
               userId: ctx.userId ?? "",
             },
           });
-          let isLikedByUser = false;
-          if (findUserLike) {
-            isLikedByUser = true;
-          }
+
+          const isLikedByUser = findUserLike ? true : false;
 
           return {
             post: post.post,
@@ -122,5 +118,42 @@ export const postsRouter = createTRPCRouter({
       });
 
       return post;
+    }),
+  getById: publicProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+      // throw error if no post found by that id
+      if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const postWithUser = await addUserDataToPost(post);
+
+      // count number of likes on post
+      const likeCount = await ctx.prisma.like.count({
+        where: {
+          postId: postWithUser.post.id,
+        },
+      });
+
+      const findUserLike: Like | null = await ctx.prisma.like.findFirst({
+        where: {
+          postId: postWithUser.post.id,
+          userId: ctx.userId ?? postWithUser.author.id,
+        },
+      });
+
+      // determimne if current user liked the post
+      const isLikedByUser = findUserLike ? true : false;
+
+      return {
+        post: postWithUser.post,
+        author: postWithUser.author,
+        likeCount,
+        isLikedByUser,
+      };
     }),
 });
