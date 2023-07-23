@@ -1,16 +1,29 @@
 import type { PropsWithChildren, FC } from "react";
 import { Sidebar } from "./sidebar";
 import { MobileDrawerNav } from "./MobileDrawerNav";
+import { useRouter } from "next/router";
+import { BackArrowIcon } from "./icons/BackArrowIcon";
 
 type HeadingProps = {
   pageName: string;
 };
 
 const Heading: FC<HeadingProps> = ({ pageName }) => {
+  const router = useRouter();
+
   return (
     <div className="sticky top-0 z-10 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
+      {router.pathname != "/" && (
+        <button
+          className="rounded-full p-1 hover:bg-zinc-800"
+          onClick={router.back}
+        >
+          <BackArrowIcon />
+        </button>
+      )}
       {pageName}
       <MobileDrawerNav />
+      <div className="hidden w-6 sm:block"></div>
     </div>
   );
 };

@@ -3,18 +3,9 @@ import { TRPCError } from "@trpc/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import type { Post } from "@prisma/client";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import type { User } from "@clerk/nextjs/dist/api";
 import { privateProcedure } from "../trpc";
 import type { Like } from "@prisma/client";
-
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id,
-    username: user.unsafeMetadata.username as string,
-    displayName: user.unsafeMetadata.displayName as string,
-    profileImageUrl: user.profileImageUrl,
-  };
-};
+import { filterUserForClient } from "../helpers/filterUserForClient";
 
 const addUserDataToPost = async (post: Post) => {
   const userId = post.authorId;
@@ -93,11 +84,19 @@ export const postsRouter = createTRPCRouter({
 
           const isLikedByUser = findUserLike ? true : false;
 
+          // get the number of replies that the post has
+          const replyCount = await ctx.prisma.reply.count({
+            where: {
+              postId: post.post.id,
+            },
+          });
+
           return {
             post: post.post,
             author: post.author,
             likeCount,
             isLikedByUser,
+            replyCount,
           };
         })
       );
@@ -142,18 +141,26 @@ export const postsRouter = createTRPCRouter({
       const findUserLike: Like | null = await ctx.prisma.like.findFirst({
         where: {
           postId: postWithUser.post.id,
-          userId: ctx.userId ?? postWithUser.author.id,
+          userId: ctx.userId ?? "",
         },
       });
 
       // determimne if current user liked the post
       const isLikedByUser = findUserLike ? true : false;
 
+      // get the number of replies that the post has
+      const replyCount = await ctx.prisma.reply.count({
+        where: {
+          postId: postWithUser.post.id,
+        },
+      });
+
       return {
         post: postWithUser.post,
         author: postWithUser.author,
         likeCount,
         isLikedByUser,
+        replyCount,
       };
     }),
 });

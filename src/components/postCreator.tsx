@@ -45,7 +45,7 @@ export const PostCreator = ({
     api.replys.create.useMutation({
       onSuccess: () => {
         setInput("");
-        //void ctx.replys.getAllInfinite.invalidate();
+        void ctx.replys.getAllInfiniteById.invalidate();
       },
       onError: (e) => {
         const errorMessage = e.data?.zodError?.fieldErrors.content;
@@ -80,7 +80,7 @@ export const PostCreator = ({
           alt={"profile Image"}
           width={56}
           height={56}
-          className="h-12 w-12 rounded-full"
+          className="h-10 w-10 rounded-full"
         />
         <div className="w-full">
           <TextareaAutosize

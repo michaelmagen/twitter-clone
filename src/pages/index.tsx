@@ -1,64 +1,25 @@
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useEffect } from "react";
-import { LoadingSpinner } from "~/components/loading";
-import { PostView } from "~/components/postview";
-import { useInView } from "react-intersection-observer";
-import { api } from "~/utils/api";
 import { PageLayout } from "~/components/PageLayout";
 import { PostCreator } from "~/components/postCreator";
-
-const Feed = () => {
-  const { ref, inView } = useInView();
-
-  const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
-    api.posts.getAllInfinite.useInfiniteQuery(
-      {
-        limit: 15,
-      },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      }
-    );
-
-  useEffect(() => {
-    if (inView) {
-      void fetchNextPage();
-    }
-  }, [inView, fetchNextPage]);
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center pt-10">
-        <LoadingSpinner size={40} />
-      </div>
-    );
-
-  // todo: rename postWIthUser in the map
-  return (
-    <div className="flex grow flex-col">
-      {data &&
-        data.pages.map((page) =>
-          page.postsWithUserAndLikes.map((postWithUser) => (
-            <PostView {...postWithUser} key={postWithUser.post.id} />
-          ))
-        )}
-      <div ref={ref} className="flex h-full justify-center p-2">
-        {isFetchingNextPage ? (
-          <LoadingSpinner size={32} />
-        ) : hasNextPage ? (
-          <div className="h-9" />
-        ) : (
-          "No posts left!"
-        )}
-      </div>
-    </div>
-  );
-};
+import { Feed } from "~/components/Feed";
+import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const { isSignedIn, isLoaded: userLoaded, user } = useUser();
+
+  // infinite query for main feed
+  const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
+    api.posts.getAllInfinite.useInfiniteQuery(
+      {
+        limit: 20,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        refetchOnWindowFocus: false,
+      }
+    );
 
   // Return empty div if user isn't loaded
   if (!userLoaded) return <div />;
@@ -85,7 +46,13 @@ const Home: NextPage = () => {
             <PostCreator profileImageUrl={user?.profileImageUrl} />
           )}
         </div>
-        <Feed />
+        <Feed
+          posts={data}
+          isLoading={isLoading}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+        />
       </PageLayout>
     </>
   );

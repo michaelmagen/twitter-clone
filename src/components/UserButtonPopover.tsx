@@ -31,7 +31,7 @@ export const UserButtonPopover = ({ responsive = true }) => {
           asChild
         >
           <button>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full">
               <Image
                 src={user?.profileImageUrl}
                 alt={"profile Image"}
@@ -47,8 +47,10 @@ export const UserButtonPopover = ({ responsive = true }) => {
                   : " flex px-1 text-sm"
               }`}
             >
-              <span className="font-bold"> {displayName} </span>
-              <span className="font-thin text-gray-400"> @{username}</span>
+              <span className="truncate font-bold"> {displayName} </span>
+              <span className="truncate font-thin text-gray-400">
+                @{username}
+              </span>
             </div>
             <div
               className={`h-full items-center justify-center ${

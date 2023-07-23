@@ -22,7 +22,7 @@ export const MobileDrawerNav = () => {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed inset-y-0 right-0 z-20 h-full w-2/3 max-w-xs gap-4 border-l border-zinc-700 bg-black p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right data-[state=closed]:duration-200 data-[state=open]:duration-300">
-          <div className="mt-5 flex h-full w-full flex-col justify-between overflow-scroll px-2">
+          <div className="mt-5 flex h-full w-full flex-col justify-between overflow-x-hidden overflow-y-scroll px-2">
             <div className="flex flex-col items-start justify-center gap-3">
               <Link href="/">
                 <button className="flex gap-4 rounded-full p-2 text-xl font-thin hover:bg-zinc-800">
