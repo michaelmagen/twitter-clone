@@ -12,6 +12,7 @@ import { HoverTooltip } from "./HoverTooltip";
 import Link from "next/link";
 import { ReplyIcon } from "./icons/ReplyIcon";
 import { ShareIcon } from "./icons/ShareIcon";
+import { useRouter } from "next/router";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -114,6 +115,8 @@ export const PostView = (props: PostWithUserAndData) => {
   const [isLiked, setIsLiked] = useState(isLikedByUser);
   const [likeCount, setLikeCount] = useState(originalLikeCount);
   const { isSignedIn } = useUser();
+  const router = useRouter();
+  const isInSinglePostPage = router.asPath.includes("post");
 
   const { mutate: createLikeMutation, isLoading: createLoading } =
     api.likes.create.useMutation({
@@ -153,7 +156,13 @@ export const PostView = (props: PostWithUserAndData) => {
       },
     });
 
-  const handleLikeButtonClick = () => {
+  const handleClickOnPost = async () => {
+    if (isInSinglePostPage) return;
+
+    await router.push(`/post/${post.id}`);
+  };
+
+  const handleLikeButtonClick = (event: React.MouseEvent<HTMLElement>) => {
     // if not signed in not fire and notify user
     if (!isSignedIn) {
       toast.error("Must be signed in to do that!  ", {
@@ -161,6 +170,10 @@ export const PostView = (props: PostWithUserAndData) => {
       });
       return;
     }
+
+    // prevents div onClick being called so user not taken to post page
+    event.stopPropagation();
+
     // do not allow to click the button if still loading
     if (createLoading || deleteLoading) {
       return;
@@ -183,7 +196,10 @@ export const PostView = (props: PostWithUserAndData) => {
 
   // TODO: Make it so that this can handle the case where the current url is a profile page
   // the currentUrl might be base/profile/username
-  const handleShareClick = async () => {
+  const handleShareClick = async (event: React.MouseEvent<HTMLElement>) => {
+    // prevents div onClick being called so user not taken to post page
+    event.stopPropagation();
+
     // get the url of current page
     let currentUrl = typeof window !== "undefined" ? window.location.href : "";
 
@@ -209,21 +225,26 @@ export const PostView = (props: PostWithUserAndData) => {
   };
 
   return (
-    <div className="border-b border-zinc-700">
-      <Link href={`/post/${post.id}`}>
-        <ContentView
-          id={post.id}
-          author={author}
-          createdAt={post.createdAt}
-          type={ContentType.post}
-          content={post.content}
-        />
-      </Link>
+    <div
+      onClick={handleClickOnPost}
+      className={`cursor-pointer border-b border-zinc-700 ${
+        isInSinglePostPage
+          ? "cursor-default"
+          : "cursor-pointer hover:bg-zinc-950"
+      }`}
+    >
+      <ContentView
+        id={post.id}
+        author={author}
+        createdAt={post.createdAt}
+        type={ContentType.post}
+        content={post.content}
+      />
       <div className="mb-1 flex w-full items-center justify-evenly">
         <div className="flex items-center justify-center gap-0.5">
           <HoverTooltip content="Like" allScreenSizes={true}>
             <button
-              onClick={handleLikeButtonClick}
+              onClick={(event) => handleLikeButtonClick(event)}
               className="rounded-full p-2 hover:bg-pink-600 hover:bg-opacity-20"
             >
               {!isLiked && <HeartIcon />}
@@ -249,7 +270,7 @@ export const PostView = (props: PostWithUserAndData) => {
         </Link>
         <HoverTooltip content="Share" allScreenSizes={true}>
           <button
-            onClick={handleShareClick}
+            onClick={(event) => handleShareClick(event)}
             className="rounded-full p-2 hover:bg-green-500 hover:bg-opacity-20"
           >
             <ShareIcon />
