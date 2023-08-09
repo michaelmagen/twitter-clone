@@ -11,6 +11,7 @@ import type { PropsWithChildren } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
+import { RouteHistoryProvider } from "~/utils/routeHistory";
 
 const RedirectIfNotRegistered = ({ children }: PropsWithChildren) => {
   const router = useRouter();
@@ -44,7 +45,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     >
       <Toaster position="bottom-center" />
       <RedirectIfNotRegistered>
-        <Component {...pageProps} />
+        <RouteHistoryProvider>
+          <Component {...pageProps} />
+        </RouteHistoryProvider>
       </RedirectIfNotRegistered>
     </ClerkProvider>
   );

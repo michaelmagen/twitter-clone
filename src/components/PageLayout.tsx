@@ -3,6 +3,7 @@ import { Sidebar } from "./sidebar";
 import { MobileDrawerNav } from "./MobileDrawerNav";
 import { useRouter } from "next/router";
 import { BackArrowIcon } from "./icons/BackArrowIcon";
+import { useRouteHistory } from "../utils/routeHistory";
 
 type HeadingProps = {
   pageName: string;
@@ -10,10 +11,14 @@ type HeadingProps = {
 
 const Heading: FC<HeadingProps> = ({ pageName }) => {
   const router = useRouter();
+  const { routeHistory } = useRouteHistory();
+  // only show back button if not in home route and there is another route within the app to go back to
+  const shouldShowBackButton =
+    router.pathname != "/" && routeHistory.length != 1;
 
   return (
     <div className="sticky top-0 z-10 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
-      {router.pathname != "/" && (
+      {shouldShowBackButton && (
         <button
           className="rounded-full p-1 hover:bg-zinc-800"
           onClick={router.back}

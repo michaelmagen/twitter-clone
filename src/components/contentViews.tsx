@@ -216,7 +216,6 @@ export const PostView = (props: PostWithUserAndData) => {
       currentUrl = currentUrl + `post/${post.id}`;
     }
 
-    console.log(currentUrl);
     // write current url to clipboard and notify user of it
     await navigator.clipboard.writeText(currentUrl);
     toast.success("Copied link to clipboard!", {
