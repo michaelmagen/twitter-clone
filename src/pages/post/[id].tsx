@@ -12,7 +12,6 @@ import { api } from "~/utils/api";
 import { PostView } from "~/components/contentViews";
 import { useUser } from "@clerk/nextjs";
 import { PostCreator } from "~/components/postCreator";
-import { LoadingSpinner } from "~/components/loading";
 import { getAuth } from "@clerk/nextjs/server";
 import Head from "next/head";
 import { Feed } from "~/components/Feed";
@@ -20,7 +19,7 @@ import { Feed } from "~/components/Feed";
 export async function getServerSideProps(
   context: GetServerSidePropsContext<{ id: string }>
 ) {
-  // if the user id of the logged in user
+  // get the user id of the logged in user
   const req = context.req;
   const session = getAuth(req);
   const userId = session.userId;
@@ -33,23 +32,38 @@ export async function getServerSideProps(
 
   const id = context.params?.id as string;
 
-  await helpers.posts.getById.prefetch({ id });
-
-  return {
-    props: {
-      trpcState: helpers.dehydrate(),
-      id,
-    },
-  };
+  try {
+    const initialPostData = await helpers.posts.getById.fetch({ id });
+    return {
+      props: {
+        trpcState: helpers.dehydrate(),
+        id,
+        initialPostData,
+      },
+    };
+  } catch (e) {
+    // If there is error fetching post, redirect to 404 page
+    return {
+      notFound: true,
+    };
+  }
 }
 
 const SinglePostPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ id }) => {
-  const { data: postData } = api.posts.getById.useQuery({ id });
+> = ({ id, initialPostData }) => {
   const { user, isSignedIn } = useUser();
 
   const profileImage: string = user?.profileImageUrl ?? "";
+
+  const { data: postData } = api.posts.getById.useQuery(
+    {
+      id: id,
+    },
+    {
+      initialData: initialPostData,
+    }
+  );
 
   const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
     api.replys.getAllInfiniteById.useInfiniteQuery(
@@ -60,16 +74,6 @@ const SinglePostPage: NextPage<
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       }
-    );
-
-  // this will not get hit because of ssr, change to 404
-  if (!postData)
-    return (
-      <PageLayout pageName="Post">
-        <div className="flex w-full items-center justify-center pt-10">
-          <LoadingSpinner size={40} />
-        </div>
-      </PageLayout>
     );
 
   return (

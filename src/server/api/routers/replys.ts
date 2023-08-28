@@ -1,11 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { clerkClient } from "@clerk/nextjs/server";
-
 import { createTRPCRouter } from "~/server/api/trpc";
-
 import { privateProcedure, publicProcedure } from "../trpc";
-import { filterUserForClient } from "../helpers/filterUserForClient";
+import { attachFollowData } from "../helpers/attachFollowData";
+import { findUserFromClerk } from "../helpers/findUserFromClerk";
 
 export const replysRouter = createTRPCRouter({
   create: privateProcedure
@@ -14,7 +12,7 @@ export const replysRouter = createTRPCRouter({
         postId: z.string().nonempty(),
         content: z
           .string()
-          .min(1, { message: "Reply can not be emtpy" })
+          .min(1, { message: "Reply can not be empty" })
           .max(255, { message: "Reply can not exceed 255 characters" }),
       })
     )
@@ -69,31 +67,25 @@ export const replysRouter = createTRPCRouter({
       // add user data to reply
       const replysWithUser = await Promise.all(
         replys.map(async (reply) => {
-          const userId = reply.userId;
-          const user = await clerkClient.users.getUser(userId);
+          const authorId = reply.userId;
 
-          // check that the user exists
-          if (!user) {
-            console.error("AUTHOR NOT FOUND", reply);
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: `Author for post not found. REPLY ID: ${reply.id}, USER ID: ${reply.userId}`,
-            });
-          }
-
-          const filteredUser = filterUserForClient(user);
+          const authorWithNoFollowData = await findUserFromClerk(authorId);
+          const authorProfile = await attachFollowData(
+            authorWithNoFollowData,
+            ctx.prisma,
+            ctx.userId
+          );
 
           return {
             reply,
             author: {
-              ...filteredUser,
+              ...authorProfile,
             },
           };
         })
       );
 
-      // ensure to handle the case where a post has 0 replys !!!!!!!!
-
+      // TODO: ensure to handle the case where a post has 0 replys !!!!!!!!
       return {
         replysWithUser,
         nextCursor,

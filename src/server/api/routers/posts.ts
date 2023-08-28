@@ -1,42 +1,8 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { clerkClient } from "@clerk/nextjs/server";
-import type { Post } from "@prisma/client";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { privateProcedure } from "../trpc";
-import type { Like } from "@prisma/client";
-import { filterUserForClient } from "../helpers/filterUserForClient";
-
-const addUserDataToPost = async (post: Post) => {
-  const userId = post.authorId;
-  const user = await clerkClient.users.getUser(userId);
-
-  // check that the user exists
-  if (!user) {
-    console.error("AUTHOR NOT FOUND", post);
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
-    });
-  }
-
-  const filteredUser = filterUserForClient(user);
-
-  // check that the use has a username and display name
-  if (!filteredUser.username || !filteredUser.displayName) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Author is missing displayName or username: ${user.id}`,
-    });
-  }
-
-  return {
-    post,
-    author: {
-      ...filteredUser,
-    },
-  };
-};
+import { addDataToPost } from "../helpers/addDataToPost";
 
 export const postsRouter = createTRPCRouter({
   getAllInfinite: publicProcedure
@@ -61,48 +27,61 @@ export const postsRouter = createTRPCRouter({
         nextCursor = nextItem?.id;
       }
 
-      const postsWithUser = await Promise.all(
-        posts.map((post) => addUserDataToPost(post))
-      );
-
-      // add likes
-      const postsWithUserAndLikes = await Promise.all(
-        postsWithUser.map(async (post) => {
-          // count number of likes on post
-          const likeCount = await ctx.prisma.like.count({
-            where: {
-              postId: post.post.id,
-            },
-          });
-          // determimne if current user liked the post
-          const findUserLike = await ctx.prisma.like.findFirst({
-            where: {
-              postId: post.post.id,
-              userId: ctx.userId ?? "",
-            },
-          });
-
-          const isLikedByUser = findUserLike ? true : false;
-
-          // get the number of replies that the post has
-          const replyCount = await ctx.prisma.reply.count({
-            where: {
-              postId: post.post.id,
-            },
-          });
-
-          return {
-            post: post.post,
-            author: post.author,
-            likeCount,
-            isLikedByUser,
-            replyCount,
-          };
+      const postsWithData = await Promise.all(
+        posts.map(async (post) => {
+          const postWithAllData = await addDataToPost(
+            post,
+            ctx.prisma,
+            ctx.userId
+          );
+          return postWithAllData;
         })
       );
 
       return {
-        postsWithUserAndLikes,
+        postsWithData,
+        nextCursor,
+      };
+    }),
+  getByAuthorIdInfinite: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100),
+        cursor: z.string().nullish(),
+        authorId: z.string().nonempty(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor } = input;
+      const posts = await ctx.prisma.post.findMany({
+        take: limit + 1,
+        orderBy: [{ createdAt: "desc" }],
+        cursor: cursor ? { id: cursor } : undefined,
+        where: {
+          authorId: input.authorId,
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+
+      if (posts.length > limit) {
+        const nextItem = posts.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      const postsWithData = await Promise.all(
+        posts.map(async (post) => {
+          const postWithAllData = await addDataToPost(
+            post,
+            ctx.prisma,
+            ctx.userId
+          );
+          return postWithAllData;
+        })
+      );
+
+      return {
+        postsWithData,
         nextCursor,
       };
     }),
@@ -127,40 +106,10 @@ export const postsRouter = createTRPCRouter({
         },
       });
       // throw error if no post found by that id
-      if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!post) throw new TRPCError({ code: "BAD_REQUEST" });
 
-      const postWithUser = await addUserDataToPost(post);
+      const postWithData = await addDataToPost(post, ctx.prisma, ctx.userId);
 
-      // count number of likes on post
-      const likeCount = await ctx.prisma.like.count({
-        where: {
-          postId: postWithUser.post.id,
-        },
-      });
-
-      const findUserLike: Like | null = await ctx.prisma.like.findFirst({
-        where: {
-          postId: postWithUser.post.id,
-          userId: ctx.userId ?? "",
-        },
-      });
-
-      // determimne if current user liked the post
-      const isLikedByUser = findUserLike ? true : false;
-
-      // get the number of replies that the post has
-      const replyCount = await ctx.prisma.reply.count({
-        where: {
-          postId: postWithUser.post.id,
-        },
-      });
-
-      return {
-        post: postWithUser.post,
-        author: postWithUser.author,
-        likeCount,
-        isLikedByUser,
-        replyCount,
-      };
+      return postWithData;
     }),
 });

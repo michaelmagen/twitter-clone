@@ -43,3 +43,14 @@ model Reply {
 
     @@index([postId])
 }
+
+model Follow {
+    id          String   @id @default(cuid())
+    createdAt   DateTime @default(now())
+    userId      String
+    followingId String
+
+    @@unique([userId, followingId])
+    @@index([userId])
+    @@index([followingId])
+}

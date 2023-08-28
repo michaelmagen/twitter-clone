@@ -9,7 +9,7 @@ import type {
 } from "@tanstack/react-query";
 
 // TYPES FOR PROPS
-type PostsWithUserAndLikes = RouterOutputs["posts"]["getAllInfinite"];
+type PostsWithData = RouterOutputs["posts"]["getAllInfinite"];
 
 type ReplysWithUser = RouterOutputs["replys"]["getAllInfiniteById"];
 
@@ -21,7 +21,7 @@ interface FeedBasics {
 }
 
 interface PostsFeed extends FeedBasics {
-  posts: InfiniteData<PostsWithUserAndLikes> | undefined;
+  posts: InfiniteData<PostsWithData> | undefined;
 }
 
 interface ReplysFeed extends FeedBasics {
@@ -52,7 +52,7 @@ export const Feed = (props: FeedProps) => {
       {"posts" in props &&
         props.posts &&
         props.posts.pages.map((page) =>
-          page.postsWithUserAndLikes.map((post) => (
+          page.postsWithData.map((post) => (
             <PostView {...post} key={post.post.id} />
           ))
         )}

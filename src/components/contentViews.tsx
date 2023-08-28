@@ -13,6 +13,7 @@ import Link from "next/link";
 import { ReplyIcon } from "./icons/ReplyIcon";
 import { ShareIcon } from "./icons/ShareIcon";
 import { useRouter } from "next/router";
+import { UserHoverCard } from "./UserHoverCard";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -53,12 +54,9 @@ enum ContentType {
   post,
   reply,
 }
-interface Author {
-  id: string;
-  username: string;
-  displayName: string;
-  profileImageUrl: string;
-}
+type Author =
+  RouterOutputs["posts"]["getAllInfinite"]["postsWithData"][number]["author"];
+
 interface ContentViewProps {
   id: string;
   author: Author;
@@ -77,18 +75,26 @@ const ContentView = (props: ContentViewProps) => {
         type == ContentType.reply ? "border-b" : ""
       }`}
     >
-      <Image
-        src={author.profileImageUrl}
-        className="h-10 w-10 rounded-full"
-        alt={`@${author.username}'s profile picture`}
-        width={56}
-        height={56}
-      />
+      <div className="h-10  w-10 shrink-0 rounded-full">
+        <UserHoverCard author={author}>
+          <Image
+            src={author.profileImageUrl}
+            className="h-10 w-10 rounded-full"
+            alt={`@${author.username}'s profile picture`}
+            width={56}
+            height={56}
+          />
+        </UserHoverCard>
+      </div>
       <div className="flex flex-col overflow-hidden">
         <div className="flex gap-1 text-sm sm:text-base">
-          <span className="truncate font-bold  hover:underline">{`${author.displayName}`}</span>
-          <span className="truncate font-thin text-gray-400">{`  @${author.username}`}</span>
-          <span className="overflow-hidden whitespace-nowrap font-thin text-gray-400">
+          <UserHoverCard author={author}>
+            <span className="truncate font-bold  hover:underline">{`${author.displayName}`}</span>
+          </UserHoverCard>
+          <UserHoverCard author={author}>
+            <span className="truncate font-light text-gray-500">{`  @${author.username}`}</span>
+          </UserHoverCard>
+          <span className="overflow-hidden whitespace-nowrap font-light text-gray-500">
             {` · ${dateToFormatedString(createdAt)}`}
           </span>
         </div>
@@ -101,7 +107,7 @@ const ContentView = (props: ContentViewProps) => {
 };
 
 type PostWithUserAndData =
-  RouterOutputs["posts"]["getAllInfinite"]["postsWithUserAndLikes"][number];
+  RouterOutputs["posts"]["getAllInfinite"]["postsWithData"][number];
 
 export const PostView = (props: PostWithUserAndData) => {
   const {
@@ -194,30 +200,31 @@ export const PostView = (props: PostWithUserAndData) => {
     }
   };
 
-  // TODO: Make it so that this can handle the case where the current url is a profile page
-  // the currentUrl might be base/profile/username
   const handleShareClick = async (event: React.MouseEvent<HTMLElement>) => {
     // prevents div onClick being called so user not taken to post page
     event.stopPropagation();
 
     // get the url of current page
-    let currentUrl = typeof window !== "undefined" ? window.location.href : "";
+    const currentUrl =
+      typeof window !== "undefined" ? window.location.href : "";
 
-    if (currentUrl == "") {
+    // the current url can be in the post or profile routes
+    // if post or profile are in the url, remove those words plus everything after them from url
+    const baseUrlWithoutPost = currentUrl.split("post")[0];
+    const baseUrlWithoutPostAndProfile =
+      baseUrlWithoutPost?.split("profile")[0];
+
+    if (currentUrl == "" || !baseUrlWithoutPostAndProfile) {
       toast.error("Failed to share post", {
         id: "failSharePost",
       });
       return;
     }
 
-    // When at home route, current url is not current, need to update it to post url
-    // we add /post/[id] to current url
-    if (!currentUrl.includes(post.id)) {
-      currentUrl = currentUrl + `post/${post.id}`;
-    }
+    const urlToPost = `${baseUrlWithoutPostAndProfile}post/${post.id}`;
 
     // write current url to clipboard and notify user of it
-    await navigator.clipboard.writeText(currentUrl);
+    await navigator.clipboard.writeText(urlToPost);
     toast.success("Copied link to clipboard!", {
       id: `copy to clipboard post id: ${post.id}`,
     });

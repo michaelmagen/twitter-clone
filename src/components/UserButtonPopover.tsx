@@ -48,7 +48,7 @@ export const UserButtonPopover = ({ responsive = true }) => {
               }`}
             >
               <span className="truncate font-bold"> {displayName} </span>
-              <span className="truncate font-thin text-gray-400">
+              <span className="truncate font-light text-gray-500">
                 @{username}
               </span>
             </div>

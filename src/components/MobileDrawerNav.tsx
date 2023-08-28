@@ -8,10 +8,23 @@ import { XIcon } from "./icons/XIcon";
 import { HamburgerIcon } from "./icons/HamburgerIcon";
 import { UserButtonPopover } from "./UserButtonPopover";
 import { SidebarSignInButton } from "./sidebar";
+import { toast } from "react-hot-toast";
+import { ProfileIcon } from "./icons/ProfileIcon";
 
 export const MobileDrawerNav = () => {
   const { isSignedIn, user } = useUser();
   const profileImage: string = user?.profileImageUrl ?? "";
+
+  const handleProfileButtonClick = () => {
+    // do nothing if signed in, since the button will be linked
+    if (isSignedIn) return;
+
+    // otherwise let user know that they need to sign in to do this
+    toast.error("Must be signed in to do that!", {
+      id: "authorization error for profile button",
+    });
+  };
+
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -25,17 +38,37 @@ export const MobileDrawerNav = () => {
           <div className="mt-5 flex h-full w-full flex-col justify-between overflow-x-hidden overflow-y-scroll px-2">
             <div className="flex flex-col items-start justify-center gap-3">
               <Link href="/">
-                <button className="flex gap-4 rounded-full p-2 text-xl font-thin hover:bg-zinc-800">
+                <button className="flex gap-4 rounded-full p-2 text-xl font-light hover:bg-zinc-800">
                   <HomeIcon />
                   <span>Home</span>
                 </button>
               </Link>
               <Link href="https://github.com/michaelmagen/twitter-clone">
-                <button className="flex gap-4 rounded-full p-2 text-xl font-thin hover:bg-zinc-800">
+                <button className="flex gap-4 rounded-full p-2 text-xl font-light hover:bg-zinc-800">
                   <GithubIcon />
                   <span>Source Code</span>
                 </button>
               </Link>
+              {isSignedIn && (
+                <Link href="/profile/[id]" as={`/profile/${user.id}`}>
+                  <button
+                    onClick={handleProfileButtonClick}
+                    className="flex gap-4 rounded-full p-2 text-xl font-light hover:bg-zinc-800"
+                  >
+                    <ProfileIcon />
+                    <span>Profile</span>
+                  </button>
+                </Link>
+              )}
+              {!isSignedIn && (
+                <button
+                  onClick={handleProfileButtonClick}
+                  className="flex gap-4 rounded-full p-2 text-xl font-light hover:bg-zinc-800"
+                >
+                  <ProfileIcon />
+                  <span>Profile</span>
+                </button>
+              )}
               {isSignedIn && (
                 <PostCreatorPopup
                   profileImageUrl={profileImage}

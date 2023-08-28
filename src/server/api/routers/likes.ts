@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { clerkClient } from "@clerk/nextjs/server";
-import type { Like } from "@prisma/client";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter } from "~/server/api/trpc";
 
 import { privateProcedure } from "../trpc";
 

@@ -4,6 +4,7 @@ import { MobileDrawerNav } from "./MobileDrawerNav";
 import { useRouter } from "next/router";
 import { BackArrowIcon } from "./icons/BackArrowIcon";
 import { useRouteHistory } from "../utils/routeHistory";
+import { useEffect, useState } from "react";
 
 type HeadingProps = {
   pageName: string;
@@ -12,16 +13,28 @@ type HeadingProps = {
 const Heading: FC<HeadingProps> = ({ pageName }) => {
   const router = useRouter();
   const { routeHistory } = useRouteHistory();
-  // only show back button if not in home route and there is another route within the app to go back to
-  const shouldShowBackButton =
-    router.pathname != "/" && routeHistory.length != 1;
+
+  const [showingBackButton, setShowingBackButton] = useState(false);
+
+  // If not in base route and this is not the first page visited in the site, show back button
+  useEffect(() => {
+    if (router.pathname != "/" && routeHistory.length != 1) {
+      setShowingBackButton(true);
+    }
+  }, [router, routeHistory]);
+
+  const backButtonClick = () => {
+    // ensure that the back button does not disappear before the router finishes going back
+    setShowingBackButton(true);
+    router.back();
+  };
 
   return (
     <div className="sticky top-0 z-10 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
-      {shouldShowBackButton && (
+      {showingBackButton && (
         <button
           className="rounded-full p-1 hover:bg-zinc-800"
-          onClick={router.back}
+          onClick={backButtonClick}
         >
           <BackArrowIcon />
         </button>
