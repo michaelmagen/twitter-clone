@@ -5,13 +5,13 @@ import Image from "next/image";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { api } from "~/utils/api";
-import { HeartIcon } from "./icons/HeartIcon";
+import { PiHeart, PiHeartFill } from "react-icons/pi";
 import { toast } from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 import { HoverTooltip } from "./HoverTooltip";
 import Link from "next/link";
-import { ReplyIcon } from "./icons/ReplyIcon";
-import { ShareIcon } from "./icons/ShareIcon";
+import { FaRegMessage } from "react-icons/fa6";
+import { FiShare } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { UserHoverCard } from "./UserHoverCard";
 
@@ -75,7 +75,7 @@ const ContentView = (props: ContentViewProps) => {
         type == ContentType.reply ? "border-b" : ""
       }`}
     >
-      <div className="h-10  w-10 shrink-0 rounded-full">
+      <div className="h-10 w-10 shrink-0 rounded-full">
         <UserHoverCard author={author}>
           <Image
             src={author.profileImageUrl}
@@ -169,6 +169,9 @@ export const PostView = (props: PostWithUserAndData) => {
   };
 
   const handleLikeButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    // prevents div onClick being called so user not taken to post page
+    event.stopPropagation();
+
     // if not signed in not fire and notify user
     if (!isSignedIn) {
       toast.error("Must be signed in to do that!  ", {
@@ -176,9 +179,6 @@ export const PostView = (props: PostWithUserAndData) => {
       });
       return;
     }
-
-    // prevents div onClick being called so user not taken to post page
-    event.stopPropagation();
 
     // do not allow to click the button if still loading
     if (createLoading || deleteLoading) {
@@ -251,14 +251,16 @@ export const PostView = (props: PostWithUserAndData) => {
           <HoverTooltip content="Like" allScreenSizes={true}>
             <button
               onClick={(event) => handleLikeButtonClick(event)}
-              className="rounded-full p-2 hover:bg-pink-600 hover:bg-opacity-20"
+              className={`transform-gpu rounded-full p-2 transition-transform hover:bg-pink-600 hover:bg-opacity-20 ${
+                isLiked ? "scale-110" : "scale-100"
+              }`}
             >
-              {!isLiked && <HeartIcon />}
-              {isLiked && <HeartIcon filled />}
+              {!isLiked && <PiHeart className="h-5 w-5 fill-zinc-400" />}
+              {isLiked && <PiHeartFill className="h-5 w-5 fill-pink-600" />}
             </button>
           </HoverTooltip>
           {!isLiked && (
-            <span className="text-xs text-gray-400">{likeCount}</span>
+            <span className="text-xs text-gray-500">{likeCount}</span>
           )}
           {isLiked && (
             <span className="text-xs text-pink-600">{likeCount}</span>
@@ -268,10 +270,10 @@ export const PostView = (props: PostWithUserAndData) => {
           <div className="flex items-center justify-center gap-0.5">
             <HoverTooltip content="Reply" allScreenSizes={true}>
               <button className="rounded-full p-2 hover:bg-sky-500 hover:bg-opacity-20">
-                <ReplyIcon />
+                <FaRegMessage className="fill-zinc-400" />
               </button>
             </HoverTooltip>
-            <span className="text-xs text-gray-400">{replyCount}</span>
+            <span className="text-xs text-gray-500">{replyCount}</span>
           </div>
         </Link>
         <HoverTooltip content="Share" allScreenSizes={true}>
@@ -279,7 +281,7 @@ export const PostView = (props: PostWithUserAndData) => {
             onClick={(event) => handleShareClick(event)}
             className="rounded-full p-2 hover:bg-green-500 hover:bg-opacity-20"
           >
-            <ShareIcon />
+            <FiShare className="stroke-zinc-400" />
           </button>
         </HoverTooltip>
       </div>
