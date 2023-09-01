@@ -31,15 +31,17 @@ const Heading: FC<HeadingProps> = ({ pageName }) => {
 
   return (
     <div className="sticky top-0 z-10 flex h-auto w-full justify-between self-start border-b border-zinc-700 p-4 text-xl font-bold backdrop-blur-md backdrop-brightness-50">
-      {showingBackButton && (
-        <button
-          className="rounded-full p-1 hover:bg-zinc-800"
-          onClick={backButtonClick}
-        >
-          <BackArrowIcon />
-        </button>
-      )}
-      {pageName}
+      <div className="flex gap-2">
+        {showingBackButton && (
+          <button
+            className="rounded-full p-1 hover:bg-zinc-800"
+            onClick={backButtonClick}
+          >
+            <BackArrowIcon />
+          </button>
+        )}
+        {pageName}
+      </div>
       <MobileDrawerNav />
       <div className="hidden w-6 sm:block"></div>
     </div>
