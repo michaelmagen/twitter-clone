@@ -82,7 +82,7 @@ export const Sidebar = () => {
 
   return (
     <header className="sticky top-0 hidden h-auto self-start sm:block">
-      <div className="flex h-screen w-20 flex-shrink-0 flex-col justify-between px-2 lg:w-[304px] lg:flex-shrink">
+      <div className="no-scrollbar flex h-screen w-20 flex-shrink-0 flex-col justify-between overflow-y-scroll px-2 lg:w-[304px] lg:flex-shrink">
         <div className="flex flex-col items-center justify-center gap-3 px-4 pb-2 pt-16 lg:items-start">
           <Link href="/">
             <SidebarButton icon={<HomeIcon />} label="Home" />
