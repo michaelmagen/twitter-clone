@@ -69,10 +69,8 @@ export const Feed = (props: FeedProps) => {
           <LoadingSpinner size={32} />
         ) : hasNextPage ? (
           <div className="h-9" />
-        ) : "posts" in props ? (
-          "No posts left!"
         ) : (
-          "No more Replies!"
+          ""
         )}
       </div>
     </div>
