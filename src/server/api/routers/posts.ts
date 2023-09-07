@@ -43,6 +43,54 @@ export const postsRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+  getAllFollowingInfinite: privateProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor } = input;
+      // Find all the userId's of accounts the current user follows
+      const userFollows = await ctx.prisma.follow.findMany({
+        where: {
+          userId: ctx.userId,
+        },
+      });
+      const followedUserIds = userFollows.map((follow) => follow.followingId);
+      // Get posts created by accounts the user follows
+      const posts = await ctx.prisma.post.findMany({
+        where: {
+          authorId: {
+            in: followedUserIds,
+          },
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+
+      if (posts.length > limit) {
+        const nextItem = posts.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      const postsWithData = await Promise.all(
+        posts.map(async (post) => {
+          const postWithAllData = await addDataToPost(
+            post,
+            ctx.prisma,
+            ctx.userId
+          );
+          return postWithAllData;
+        })
+      );
+
+      return {
+        postsWithData,
+        nextCursor,
+      };
+    }),
   getByAuthorIdInfinite: publicProcedure
     .input(
       z.object({
