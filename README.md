@@ -1,28 +1,37 @@
-# Create T3 App
+# [Twitter Clone](https://twitter-clone-michaelmagen.vercel.app/)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This full stack web app is a loose recreation of the social media platform Twitter. It boasts a fully typesafe API, and a resposive frontend design. The project is was built using most of the [T3 Stack](https://create.t3.gg/) and is hosted on Vercel: [Live Site](https://twitter-clone-michaelmagen.vercel.app/).
 
-## What's next? How do I make an app with this?
+## Tech Stack
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- [Typescript](https://www.typescriptlang.org/) - A statically typed superset of JavaScript, ensuring code reliability.
+- [React](https://react.dev/) - A popular JavaScript library for building user interfaces.
+- [Next.js](https://nextjs.org) - A React framework for server-rendered applications with benefits like automatic code splitting, routing, and a server.
+- [tRPC](https://trpc.io) - A framework for building typesafe APIs.
+- [Tailwind CSS](https://tailwindcss.com) - A utility-first CSS framework that simplifies styling and enhances responsiveness.
+- [Prisma](https://prisma.io) - A modern database ORM for Node.js and TypeScript that simplifies database access.
+- [Clerk](https://clerk.com/) - A simple OAuth authentication solution.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Features
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+1. Secure authentication using OAuth.
+1. Users can create posts, as well as scroll and view posts made by other users.
+1. Users can like and reply to posts.
+1. Users can build thier network by following users, and having users follow them.
 
-## Learn More
+## Local Setup
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+To get started with the Twitter Clone project on your local machine, run the following commands:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+```bash
+git clone https://github.com/michaelmagen/twitter-clone.git # clone the repo
+cd twitter-clone # set directory
+npm install # install dependencies
+npm run dev # start dev server
+```
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+Open your browser and access the application at localhost:3000.
 
-## How do I deploy this?
+## Credits
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Created by Michael Magen.
