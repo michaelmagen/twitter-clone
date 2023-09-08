@@ -61,6 +61,9 @@ export const postsRouter = createTRPCRouter({
       const followedUserIds = userFollows.map((follow) => follow.followingId);
       // Get posts created by accounts the user follows
       const posts = await ctx.prisma.post.findMany({
+        take: limit + 1,
+        orderBy: [{ createdAt: "desc" }],
+        cursor: cursor ? { id: cursor } : undefined,
         where: {
           authorId: {
             in: followedUserIds,

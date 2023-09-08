@@ -7,7 +7,6 @@ import { Feed } from "~/components/Feed";
 import { api } from "~/utils/api";
 import * as Tabs from "@radix-ui/react-tabs";
 import clsx from "clsx";
-import { toast } from "react-hot-toast";
 interface PostWizardProps {
   profileImageUrl: string | undefined;
 }
@@ -42,6 +41,7 @@ const LatestFeed = () => {
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         refetchOnWindowFocus: false,
+        staleTime: 60000, // in milliseconds = 1 minute
       }
     );
 
@@ -60,10 +60,11 @@ const FollowingFeed = () => {
   const { isSignedIn } = useUser();
 
   if (!isSignedIn) {
-    toast.error("Sign in to start following users!", {
-      id: "following feed error",
-    });
-    return <></>;
+    return (
+      <div className="mt-5 flex h-10 w-full items-center justify-center text-lg">
+        Sign in to see tweets from accounts you follow!
+      </div>
+    );
   }
 
   const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
@@ -74,6 +75,7 @@ const FollowingFeed = () => {
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         refetchOnWindowFocus: false,
+        staleTime: 60000, // in milliseconds = 1 minute
       }
     );
 
